@@ -1,9 +1,9 @@
 # Eduardo Bot
+A discord bot using discord.js and typescript,
 
 ## Add to your discord server
 [Click Here](https://discord.com/oauth2/authorize?client_id=721400907325243402&scope=bot&permissions=0)
 
-A discord bot using discord.js and typescript,
 This silly bot was created just to learn basic typescript.
 
 ## Functions
