@@ -44,6 +44,14 @@ function hasJoinRole(member: GuildMember): boolean {
 export default function setup(client: Client): void {
     client.on('ready', handleReady(client));
     client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState) => {
+        // Update name
+        if (client.user) {
+            const member = oldState.guild.member(client.user);
+            if (member && member.nickname && member.nickname !== "Eduardo Amaro II") {
+                await member.setNickname("Eduardo Amaro II")
+            }
+        }
+
         // If member exists
         if (newState.member && newState.guild.id === mainGuildId) {
             // If someone joined a voice channel
