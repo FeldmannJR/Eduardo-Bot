@@ -31,6 +31,8 @@ async function join(client: Client, channel: VoiceChannel) {
             return;
         }
         await channel.join();
+        guild?.voice?.setMute(true);
+        guild?.voice?.setDeaf(true);
     }
 }
 
