@@ -88,10 +88,14 @@ export default function setup(client: Client): void {
                     }
                 }
             }
-            if (newState.channel && newState.guild.voice && newState.channel.id === newState.guild?.voice?.channel?.id) {
+            if (newState.channel &&
+                newState.guild.voice &&
+                newState.channel.id !== oldState?.channel?.id &&
+                newState.channel.id === newState.guild?.voice?.channel?.id
+            ) {
                 const guild = newState.channel.guild;
                 if (guild.voice && guild.voice.connection) {
-                    if (elapsed("voicegoodbye:" + newState.member.id, 1000 * 60 * 60) && elapsed('voicegoodbye', 1000 * 5)) {
+                    if (elapsed("voicegoodbye:" + newState.member.id, 1000 * 60 * 10) && elapsed('voicegoodbye', 1000 * 5)) {
                         await sayGoodnight(guild.voice.connection);
                     }
                 }
