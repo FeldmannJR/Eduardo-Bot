@@ -32,7 +32,7 @@ async function sayGoodnight(voice: VoiceConnection) {
     console.log("should send boa noite");
     setTimeout(async () => {
         await voice.play('./assets/boanoite.mp3');
-    }, 5000);
+    }, 3000);
 
 }
 async function join(client: Client, channel: VoiceChannel) {
