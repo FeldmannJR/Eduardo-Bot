@@ -6,8 +6,13 @@ import {
     VoiceConnection,
     Guild,
 } from 'discord.js';
-
 import { elapsed } from 'utils/time';
+
+const config = {
+    delayUntilSend: 3000,
+    cooldownPerUser: 1000 * 60 * 10,
+    cooldownPerGuild: 1000 * 5,
+}
 const mainGuildId = process.env.DISCORD_MAIN_GUILD;
 const joinRoleId = process.env.DISCORD_JOIN_ROLE;
 
@@ -15,34 +20,46 @@ const joinRoleId = process.env.DISCORD_JOIN_ROLE;
 function handleReady(client: Client): () => Promise<void> {
     return async () => {
         if (mainGuildId) {
-            const guild = client.guilds.cache.get(mainGuildId);
-            if (guild) {
-                const user = guild.voiceStates.cache
-                    .filter(voiceState => voiceState.member != undefined && voiceState.channel != undefined && hasJoinRole(voiceState.member))
-                    .first();
-                if (user && user.channel) {
-                    await join(client, user.channel);
+            for (const guild of client.guilds.cache.values()) {
+                if (guild) {
+                    const user = guild.voiceStates.cache
+                        .filter(voiceState => voiceState.member != undefined && voiceState.channel != undefined && hasJoinRole(voiceState.member))
+                        .first();
+                    if (user && user.channel && user.member) {
+                        const connection = await join(client, user.channel);
+                        if (connection) {
+                            await sayGoodnight(user.member, connection);
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-async function sayGoodnight(voice: VoiceConnection) {
-    console.log("should send boa noite");
+async function sayGoodnight(member: GuildMember, voice: VoiceConnection) {
+    const guildId = voice.channel.guild.id;
+    if (
+        !elapsed(`voicegoodbye(guild:${guildId},user:${member.id})`, config.cooldownPerUser) ||
+        !elapsed(`voicegoodbye:(guild:${guildId})`, config.cooldownPerGuild)
+    ) return;
+
+    console.log("should send boa noite to " + member.user.username + " at " + voice.channel.guild.name);
+    
     setTimeout(async () => {
         await voice.play('./assets/boanoite.mp3');
-    }, 2500);
+    }, config.delayUntilSend);
 
 }
-async function join(client: Client, channel: VoiceChannel) {
+async function join(client: Client, channel: VoiceChannel): Promise<VoiceConnection | null> {
     if (mainGuildId && joinRoleId) {
-        const guild = client.guilds.cache.get(mainGuildId);
+        const guild = channel.guild;
         if (guild?.voice?.channel && guild.voice.connection) {
-            return;
+            return null;
         }
-        await channel.join();
+        return await channel.join();
     }
+    return null;
 }
 
 function hasJoinRole(member: GuildMember): boolean {
@@ -70,13 +87,20 @@ export default function setup(client: Client): void {
             }
         }
 
+        // Ignore bots
+        if (newState.member?.user.bot) {
+            return;
+        }
         // If member exists
-        if (newState.member && newState.guild.id === mainGuildId) {
+        if (newState.member) {
             // If someone joined a voice channel
             if (!oldState.channel && newState.channel) {
                 // If has the special role
                 if (hasJoinRole(newState.member)) {
-                    await join(client, newState.channel);
+                    const voiceConnection = await join(client, newState.channel);
+                    if (voiceConnection) {
+                        await sayGoodnight(newState.member, voiceConnection);
+                    }
                 }
             }
             // If someone leaved a voice channel
@@ -96,9 +120,7 @@ export default function setup(client: Client): void {
             ) {
                 const guild = newState.channel.guild;
                 if (guild.voice && guild.voice.connection) {
-                    if (elapsed("voicegoodbye:" + newState.member.id, 1000 * 60 * 10) && elapsed('voicegoodbye', 1000 * 8)) {
-                        await sayGoodnight(guild.voice.connection);
-                    }
+                    await sayGoodnight(newState.member, guild.voice.connection);
                 }
             }
 
