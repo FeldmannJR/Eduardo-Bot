@@ -3,8 +3,11 @@ import {
     GuildMember,
     VoiceState,
     VoiceChannel,
+    VoiceConnection,
+    Guild,
 } from 'discord.js';
 
+import { elapsed } from 'utils/time';
 const mainGuildId = process.env.DISCORD_MAIN_GUILD;
 const joinRoleId = process.env.DISCORD_JOIN_ROLE;
 
@@ -24,21 +27,33 @@ function handleReady(client: Client): () => Promise<void> {
         }
     }
 }
+
+async function sayGoodnight(voice: VoiceConnection) {
+    console.log("should send boa noite");
+    setTimeout(async () => {
+        await voice.play('./assets/boanoite.mp3');
+    }, 1000);
+
+}
 async function join(client: Client, channel: VoiceChannel) {
     if (mainGuildId && joinRoleId) {
         const guild = client.guilds.cache.get(mainGuildId);
-        if (guild?.voice?.channel) {
+        if (guild?.voice?.channel && guild.voice.connection) {
             return;
         }
         await channel.join();
-        guild?.voice?.setMute(true);
-        guild?.voice?.setDeaf(true);
     }
 }
 
 function hasJoinRole(member: GuildMember): boolean {
     if (joinRoleId) {
         return (member.roles.cache.has(joinRoleId));
+    }
+    return false;
+}
+function isConnected(guild: Guild, channel: VoiceChannel): boolean {
+    if (guild?.voice?.channel?.id === channel.id) {
+        return true;
     }
     return false;
 }
@@ -63,6 +78,26 @@ export default function setup(client: Client): void {
                     await join(client, newState.channel);
                 }
             }
+            // If someone leaved a voice channel
+            if (oldState.channel && !newState.channel) {
+                const channel = oldState.channel;
+                if (isConnected(channel.guild, channel)) {
+                    if (channel.members.size === 1) {
+                        channel.guild.voice?.connection?.disconnect();
+                        return
+                    }
+                }
+            }
+            if (newState.channel && newState.guild.voice && newState.channel.id === newState.guild?.voice?.channel?.id) {
+                const guild = newState.channel.guild;
+                if (guild.voice && guild.voice.connection) {
+                    if (elapsed("voicegoodbye:" + newState.member.id, 1000 * 60 * 60) && elapsed('voicegoodbye', 1000 * 5)) {
+                        await sayGoodnight(guild.voice.connection);
+                    }
+                }
+            }
+
         }
+
     });
 }
