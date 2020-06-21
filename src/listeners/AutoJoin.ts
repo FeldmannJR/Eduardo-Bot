@@ -32,7 +32,7 @@ async function sayGoodnight(voice: VoiceConnection) {
     console.log("should send boa noite");
     setTimeout(async () => {
         await voice.play('./assets/boanoite.mp3');
-    }, 1000);
+    }, 5000);
 
 }
 async function join(client: Client, channel: VoiceChannel) {
@@ -96,7 +96,7 @@ export default function setup(client: Client): void {
             ) {
                 const guild = newState.channel.guild;
                 if (guild.voice && guild.voice.connection) {
-                    if (elapsed("voicegoodbye:" + newState.member.id, 1000 * 60 * 10) && elapsed('voicegoodbye', 1000 * 5)) {
+                    if (elapsed("voicegoodbye:" + newState.member.id, 1000 * 60 * 10) && elapsed('voicegoodbye', 1000 * 8)) {
                         await sayGoodnight(guild.voice.connection);
                     }
                 }
