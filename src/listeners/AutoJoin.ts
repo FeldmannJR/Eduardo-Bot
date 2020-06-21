@@ -46,11 +46,12 @@ async function join(client: Client, channel: VoiceChannel) {
 }
 
 function hasJoinRole(member: GuildMember): boolean {
-    if (joinRoleId) {
-        return (member.roles.cache.has(joinRoleId));
-    }
-    return false;
+    // if (joinRoleId) {
+    //     return (member.roles.cache.has(joinRoleId));
+    // }
+    return true;
 }
+
 function isConnected(guild: Guild, channel: VoiceChannel): boolean {
     if (guild?.voice?.channel?.id === channel.id) {
         return true;
