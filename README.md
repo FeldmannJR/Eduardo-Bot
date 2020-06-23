@@ -1,5 +1,12 @@
 # Eduardo Bot
-A discord bot using discord.js and typescript,
+<p align="center" text-align="center">
+    A discord bot using discord.js and typescript
+</p>
+<p align="center" text-align="center">
+  <img width="250" height="250" src="docs/profile.jpg">  
+</p>
+
+---
 
 ## Add to your discord server
 [Click Here](https://discord.com/oauth2/authorize?client_id=721400907325243402&scope=bot&permissions=0)
