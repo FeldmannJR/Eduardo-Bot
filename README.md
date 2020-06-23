@@ -15,6 +15,6 @@ This silly bot was created just to learn basic typescript.
 
 ## Functions
 
-- You can say 'Boa dia', 'Boa tarde', 'Boa noite', and the bot replies in binary.
+- You can say 'Bom dia', 'Boa tarde', 'Boa noite', and the bot replies in binary.
 - When a user joins the urubuzão asks for zapzap.
 - When a user join in the room, the bot automatically joins together, so you will never be alone.
