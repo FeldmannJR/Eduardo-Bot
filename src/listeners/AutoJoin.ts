@@ -15,7 +15,7 @@ const config = {
 }
 const mainGuildId = process.env.DISCORD_MAIN_GUILD;
 const joinRoleId = process.env.DISCORD_JOIN_ROLE;
-
+const nickname = process.env.DISCORD_NICKNAME;
 
 function handleReady(client: Client): () => Promise<void> {
     return async () => {
@@ -80,10 +80,10 @@ export default function setup(client: Client): void {
     client.on('ready', handleReady(client));
     client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState) => {
         // Update name
-        if (client.user) {
+        if (client.user && nickname) {
             const member = oldState.guild.member(client.user);
-            if (member && member.nickname && member.nickname !== "Eduardo Amaro II") {
-                await member.setNickname("Eduardo Amaro II")
+            if (member && member.nickname && member.nickname !== nickname) {
+                await member.setNickname(nickname)
             }
         }
 
